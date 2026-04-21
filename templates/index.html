@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Phishing Website Detect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #081420;
+        --panel: rgba(8, 20, 32, 0.72);
+        --panel-border: rgba(148, 163, 184, 0.16);
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --accent: #22c55e;
+        --accent-warm: #f97316;
+        --danger: #ef4444;
+        --safe: #22c55e;
+        --input: rgba(15, 23, 42, 0.9);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "DM Sans", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(34, 197, 94, 0.15), transparent 28%),
+          radial-gradient(circle at right, rgba(249, 115, 22, 0.16), transparent 24%),
+          linear-gradient(135deg, #081420 0%, #10253a 48%, #071019 100%);
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+        background-size: 38px 38px;
+        mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 92%);
+      }
+
+      .page {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 56px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 24px;
+        align-items: stretch;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        backdrop-filter: blur(16px);
+        border-radius: 28px;
+        box-shadow: 0 24px 80px rgba(2, 6, 23, 0.45);
+      }
+
+      .main-panel {
+        padding: 34px;
+        animation: rise 0.65s ease;
+      }
+
+      .side-panel {
+        padding: 28px;
+        animation: rise 0.85s ease;
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(34, 197, 94, 0.13);
+        color: #bbf7d0;
+        font-size: 0.92rem;
+      }
+
+      h1, h2, h3 {
+        font-family: "Space Grotesk", sans-serif;
+        margin: 0;
+      }
+
+      h1 {
+        margin-top: 18px;
+        font-size: clamp(2.2rem, 4vw, 4.25rem);
+        line-height: 0.96;
+        letter-spacing: -0.04em;
+      }
+
+      .lead {
+        margin: 18px 0 0;
+        font-size: 1.04rem;
+        line-height: 1.7;
+        color: var(--muted);
+        max-width: 58ch;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 26px;
+      }
+
+      .stat {
+        padding: 18px;
+        border-radius: 20px;
+        background: rgba(15, 23, 42, 0.72);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 1.4rem;
+      }
+
+      .stat span {
+        display: block;
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      form {
+        margin-top: 30px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .input-row {
+        display: flex;
+        gap: 12px;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 16px 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: var(--input);
+        color: var(--text);
+        font-size: 1rem;
+        outline: none;
+      }
+
+      input[type="text"]:focus {
+        border-color: rgba(34, 197, 94, 0.55);
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.14);
+      }
+
+      button {
+        border: none;
+        border-radius: 18px;
+        padding: 0 24px;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #04110a;
+        background: linear-gradient(135deg, #22c55e, #facc15);
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 24px rgba(34, 197, 94, 0.18);
+      }
+
+      .helper {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+
+      .result-card {
+        margin-top: 28px;
+        padding: 22px;
+        border-radius: 22px;
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+      }
+
+      .result-card.safe {
+        border-color: rgba(34, 197, 94, 0.32);
+      }
+
+      .result-card.risk {
+        border-color: rgba(239, 68, 68, 0.32);
+      }
+
+      .result-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 14px;
+        border-radius: 999px;
+        font-size: 0.92rem;
+        font-weight: 700;
+      }
+
+      .badge.safe {
+        background: rgba(34, 197, 94, 0.16);
+        color: #bbf7d0;
+      }
+
+      .badge.risk {
+        background: rgba(239, 68, 68, 0.14);
+        color: #fecaca;
+      }
+
+      .result-meta {
+        margin-top: 16px;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .result-url {
+        word-break: break-all;
+        color: #dbeafe;
+      }
+
+      ul.flags {
+        margin: 18px 0 0;
+        padding-left: 18px;
+        color: #cbd5e1;
+      }
+
+      ul.flags li + li {
+        margin-top: 8px;
+      }
+
+      .error {
+        margin-top: 22px;
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        color: #fecaca;
+      }
+
+      .side-panel h2 {
+        font-size: 1.45rem;
+      }
+
+      .checklist {
+        margin: 18px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .checklist li {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+        color: #cbd5e1;
+        line-height: 1.55;
+      }
+
+      .checklist li::before {
+        content: "•";
+        color: var(--accent-warm);
+        font-size: 1.5rem;
+        line-height: 1;
+      }
+
+      .footer {
+        margin-top: 20px;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .dev-toggle {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 20;
+      }
+
+      .dev-toggle details {
+        position: relative;
+      }
+
+      .dev-toggle summary {
+        list-style: none;
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px 0 10px;
+        border-radius: 999px;
+        cursor: pointer;
+        user-select: none;
+        color: #dbeafe;
+        background: rgba(15, 23, 42, 0.86);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 10px 24px rgba(2, 6, 23, 0.35);
+      }
+
+      .dev-toggle summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .dev-icon {
+        width: 20px;
+        height: 20px;
+        display: inline-grid;
+        place-items: center;
+        border-radius: 999px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #081420;
+        background: linear-gradient(135deg, #22c55e, #facc15);
+      }
+
+      .dev-label {
+        font-size: 0.76rem;
+        letter-spacing: 0.08em;
+        text-transform: lowercase;
+        color: #cbd5e1;
+      }
+
+      .dev-card {
+        position: absolute;
+        right: 0;
+        bottom: 46px;
+        width: min(280px, calc(100vw - 32px));
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(8, 20, 32, 0.95);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 20px 40px rgba(2, 6, 23, 0.42);
+      }
+
+      .dev-card h3 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+      }
+
+      .dev-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        color: #cbd5e1;
+      }
+
+      .dev-list li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 0;
+      }
+
+      .dev-list li::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #22c55e, #f97316);
+        flex: 0 0 auto;
+      }
+
+      @media (max-width: 900px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+
+        .stats {
+          grid-template-columns: 1fr;
+        }
+
+        .input-row {
+          flex-direction: column;
+        }
+
+        button {
+          min-height: 54px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="panel main-panel">
+          <div class="eyebrow">Machine Learning Driven URL Intelligence</div>
+          <h1>Spot suspicious websites before they ask for your data.</h1>
+          <p class="lead">
+            This final year project analyzes a submitted URL using an upgraded
+            support vector machine model trained on real phishing and legitimate
+            website patterns.
+          </p>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>98.78%</strong>
+              <span>Measured test accuracy</span>
+            </div>
+            <div class="stat">
+              <strong>97.86%</strong>
+              <span>F1 score for phishing class</span>
+            </div>
+            <div class="stat">
+              <strong>549K+</strong>
+              <span>URLs used from the dataset</span>
+            </div>
+          </div>
+
+          <form method="POST" action="/">
+            <label for="url">Enter a website URL</label>
+            <div class="input-row">
+              <input
+                type="text"
+                id="url"
+                name="url"
+                placeholder="https://example.com/login"
+                value="{{ result.url }}"
+                required
+              />
+              <button type="submit">Analyze URL</button>
+            </div>
+            <div class="helper">
+              Tip: you can submit links with or without the protocol.
+            </div>
+          </form>
+
+          {% if result.error %}
+          <div class="error">{{ result.error }}</div>
+          {% endif %}
+
+          {% if result.prediction %}
+          <div class="result-card {{ 'risk' if result.is_phishing else 'safe' }}">
+            <div class="result-head">
+              <div>
+                <h2>{{ result.prediction }}</h2>
+                <div class="result-meta">
+                  Confidence score: <strong>{{ result.confidence }}%</strong>
+                </div>
+              </div>
+              <div class="badge {{ 'risk' if result.is_phishing else 'safe' }}">
+                {{ result.status_label }}
+              </div>
+            </div>
+            <div class="result-meta">
+              Checked URL:
+              <div class="result-url">{{ result.url }}</div>
+            </div>
+
+            {% if result.risk_flags %}
+            <ul class="flags">
+              {% for flag in result.risk_flags %}
+              <li>{{ flag }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+
+        <aside class="panel side-panel">
+          <h2>What changed in this improved version?</h2>
+          <ul class="checklist">
+            <li>
+              Replaced the older baseline classifier with a stronger
+              `LinearSVC` URL classifier.
+            </li>
+            <li>
+              Combined character-level and token-level TF-IDF features to catch
+              spoofed brand names, fake paths, and malicious URL patterns.
+            </li>
+            <li>
+              Added a confidence score and risk hints so the prediction feels
+              easier to explain during your project demo.
+            </li>
+            <li>
+              Refined the interface for a cleaner, more modern security-focused
+              presentation on desktop and mobile.
+            </li>
+          </ul>
+          <div class="footer">
+            Built for academic demo use. Always verify suspicious websites with
+            additional security checks before trusting them.
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <div class="dev-toggle" aria-label="Developer information">
+      <details>
+        <summary title="View developer names">
+          <span class="dev-icon">i</span>
+          <span class="dev-label">developers</span>
+        </summary>
+        <div class="dev-card">
+          <h3>Built By</h3>
+          <ul class="dev-list">
+            <li>Jishu Mahato</li>
+            <li>Harsh Raj</li>
+            <li>Karan Shaw</li>
+            <li>Bidyut Maji</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </body>
+</html>

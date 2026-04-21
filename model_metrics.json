@@ -1,0 +1,37 @@
+{
+  "dataset_rows": 549346,
+  "train_rows": 439476,
+  "test_rows": 109870,
+  "accuracy": 0.988241,
+  "f1_bad": 0.979374,
+  "classification_report": {
+    "bad": {
+      "precision": 0.9782809759209058,
+      "recall": 0.9804698737414096,
+      "f1-score": 0.979374201787995,
+      "support": 31285.0
+    },
+    "good": {
+      "precision": 0.9922180475068458,
+      "recall": 0.9913342240885665,
+      "f1-score": 0.9917759388924252,
+      "support": 78585.0
+    },
+    "accuracy": 0.988240648038591,
+    "macro avg": {
+      "precision": 0.9852495117138758,
+      "recall": 0.9859020489149881,
+      "f1-score": 0.9855750703402101,
+      "support": 109870.0
+    },
+    "weighted avg": {
+      "precision": 0.988249527578147,
+      "recall": 0.988240648038591,
+      "f1-score": 0.9882445987148327,
+      "support": 109870.0
+    }
+  },
+  "trained_at_epoch": 1776785348,
+  "elapsed_seconds": 196.4,
+  "model_file": "phishing_url_pipeline.joblib"
+}
