@@ -124,30 +124,42 @@
         max-width: 58ch;
       }
 
-      .stats {
+      .verdict-guide {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 14px;
         margin-top: 26px;
       }
 
-      .stat {
+      .guide-card {
         padding: 18px;
         border-radius: 20px;
         background: rgba(15, 23, 42, 0.72);
         border: 1px solid rgba(148, 163, 184, 0.12);
       }
 
-      .stat strong {
+      .guide-card strong {
         display: block;
         font-size: 1.4rem;
       }
 
-      .stat span {
+      .guide-card span {
         display: block;
         margin-top: 5px;
         color: var(--muted);
         font-size: 0.95rem;
+      }
+
+      .guide-card.good strong {
+        color: #86efac;
+      }
+
+      .guide-card.medium strong {
+        color: #fde68a;
+      }
+
+      .guide-card.bad strong {
+        color: #fca5a5;
       }
 
       form {
@@ -220,6 +232,10 @@
         border-color: rgba(239, 68, 68, 0.32);
       }
 
+      .result-card.medium {
+        border-color: rgba(250, 204, 21, 0.32);
+      }
+
       .result-head {
         display: flex;
         justify-content: space-between;
@@ -246,6 +262,11 @@
       .badge.risk {
         background: rgba(239, 68, 68, 0.14);
         color: #fecaca;
+      }
+
+      .badge.medium {
+        background: rgba(250, 204, 21, 0.14);
+        color: #fde68a;
       }
 
       .result-meta {
@@ -405,7 +426,7 @@
           grid-template-columns: 1fr;
         }
 
-        .stats {
+        .verdict-guide {
           grid-template-columns: 1fr;
         }
 
@@ -431,18 +452,18 @@
             website patterns.
           </p>
 
-          <div class="stats">
-            <div class="stat">
-              <strong>98.78%</strong>
-              <span>Measured test accuracy</span>
+          <div class="verdict-guide">
+            <div class="guide-card good">
+              <strong>Good</strong>
+              <span>The website looks normal and safe.</span>
             </div>
-            <div class="stat">
-              <strong>97.86%</strong>
-              <span>F1 score for phishing class</span>
+            <div class="guide-card medium">
+              <strong>Medium</strong>
+              <span>The website should be checked more carefully.</span>
             </div>
-            <div class="stat">
-              <strong>549K+</strong>
-              <span>URLs used from the dataset</span>
+            <div class="guide-card bad">
+              <strong>Bad</strong>
+              <span>The website shows suspicious phishing patterns.</span>
             </div>
           </div>
 
@@ -468,17 +489,15 @@
           <div class="error">{{ result.error }}</div>
           {% endif %}
 
-          {% if result.prediction %}
-          <div class="result-card {{ 'risk' if result.is_phishing else 'safe' }}">
+          {% if result.verdict %}
+          <div class="result-card {{ result.card_tone }}">
             <div class="result-head">
               <div>
-                <h2>{{ result.prediction }}</h2>
-                <div class="result-meta">
-                  Confidence score: <strong>{{ result.confidence }}%</strong>
-                </div>
+                <h2>{{ result.verdict }}</h2>
+                <div class="result-meta">{{ result.summary }}</div>
               </div>
-              <div class="badge {{ 'risk' if result.is_phishing else 'safe' }}">
-                {{ result.status_label }}
+              <div class="badge {{ result.card_tone }}">
+                {{ result.verdict }}
               </div>
             </div>
             <div class="result-meta">
@@ -509,8 +528,8 @@
               spoofed brand names, fake paths, and malicious URL patterns.
             </li>
             <li>
-              Added a confidence score and risk hints so the prediction feels
-              easier to explain during your project demo.
+              Simplified the result into three clear classes: Good, Medium,
+              and Bad.
             </li>
             <li>
               Refined the interface for a cleaner, more modern security-focused
